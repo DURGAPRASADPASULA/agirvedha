@@ -11,8 +11,19 @@ import {
   Square,
   Wind,
 } from 'lucide-react';
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { tText, UI_COPY } from '../i18n/translations';
 import {
+  buildSevenDayChartData,
   findNearestWeatherHub,
   formatCoordinates,
   haversineDistanceKm,
@@ -203,6 +214,14 @@ export function WeatherView({
     );
     return highest;
   }, [activeLocation]);
+
+  const sevenDayChartData = useMemo(
+    () =>
+      buildSevenDayChartData(activeLocation.sevenDay, (txt) =>
+        tText(txt, language)
+      ),
+    [activeLocation, language]
+  );
 
   const handlePlanFromWeather = () => {
     const firstMonth = activeLocation.fourMonthOutlook[0];
@@ -515,11 +534,101 @@ export function WeatherView({
         </div>
       </section>
 
-      {/* 7-Day Daily Forecast */}
+      {/* 7-Day Daily Forecast & Recharts Trend Chart */}
       <section className="space-y-4">
         <h2 className="text-2xl font-bold text-[#1D241C]">
           {copy.weather.sevenDayHeading}
         </h2>
+
+        <div
+          data-testid="seven-day-recharts-card"
+          className="bg-[#FFFFFF] border border-[#DFDDD4] rounded-2xl p-5 sm:p-6 space-y-3"
+        >
+          <div>
+            <h3 className="text-base font-bold text-[#1D241C]">
+              {copy.weather.chartTitle}
+            </h3>
+            <p className="text-xs text-[#4D574B] mt-0.5">
+              {copy.weather.chartSubtitle}
+            </p>
+          </div>
+          <div className="h-[280px] w-full min-w-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={sevenDayChartData}
+                margin={{ top: 10, right: 12, left: 0, bottom: 4 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#E7E5DC" />
+                <XAxis
+                  dataKey="dayLabel"
+                  tick={{ fill: '#4D574B', fontSize: 12 }}
+                  stroke="#DFDDD4"
+                />
+                <YAxis
+                  yAxisId="temp"
+                  orientation="left"
+                  unit="°C"
+                  tick={{ fill: '#6B4423', fontSize: 12 }}
+                  stroke="#DFDDD4"
+                  width={46}
+                />
+                <YAxis
+                  yAxisId="rain"
+                  orientation="right"
+                  domain={[0, 100]}
+                  unit="%"
+                  tick={{ fill: '#1B5E3A', fontSize: 12 }}
+                  stroke="#DFDDD4"
+                  width={46}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#FFFFFF',
+                    borderColor: '#DFDDD4',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    color: '#1D241C',
+                  }}
+                />
+                <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '8px' }} />
+                <Line
+                  yAxisId="temp"
+                  type="monotone"
+                  dataKey="tempMaxC"
+                  name={copy.weather.maxTempLegend}
+                  stroke="#B45309"
+                  strokeWidth={2.5}
+                  dot={{ r: 4, fill: '#B45309' }}
+                  activeDot={{ r: 6 }}
+                  isAnimationActive={false}
+                />
+                <Line
+                  yAxisId="temp"
+                  type="monotone"
+                  dataKey="tempMinC"
+                  name={copy.weather.minTempLegend}
+                  stroke="#6B4423"
+                  strokeWidth={2}
+                  strokeDasharray="5 4"
+                  dot={{ r: 3.5, fill: '#6B4423' }}
+                  isAnimationActive={false}
+                />
+                <Line
+                  yAxisId="rain"
+                  type="monotone"
+                  dataKey="rainProbPct"
+                  name={copy.weather.rainChance}
+                  stroke="#1B5E3A"
+                  strokeWidth={2.5}
+                  dot={{ r: 4, fill: '#1B5E3A' }}
+                  activeDot={{ r: 6 }}
+                  isAnimationActive={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
           {activeLocation.sevenDay.map((day) => (
             <div

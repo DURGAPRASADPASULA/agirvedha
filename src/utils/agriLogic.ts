@@ -6,10 +6,15 @@ import type {
   CropPlannerInput,
   CropRecommendation,
   CropScanDiagnosis,
+  DailyForecast,
+  FaqCategory,
+  FaqEntry,
+  LocalizedText,
   LocationWeather,
   MandiPriceEntry,
   MandiPriceWithDelta,
   MarketplaceListing,
+  SevenDayChartPoint,
   SymptomCategory,
 } from '../types/agri';
 
@@ -391,6 +396,36 @@ export function formatCoordinates(lat: number, lng: number): string {
   const latDir = lat >= 0 ? 'N' : 'S';
   const lngDir = lng >= 0 ? 'E' : 'W';
   return `${Math.abs(lat).toFixed(4)}° ${latDir}, ${Math.abs(lng).toFixed(4)}° ${lngDir}`;
+}
+
+export function buildSevenDayChartData(
+  sevenDay: DailyForecast[],
+  resolveDay: (text: LocalizedText) => string
+): SevenDayChartPoint[] {
+  return sevenDay.map((d) => ({
+    dayLabel: resolveDay(d.day),
+    dateLabel: d.dateLabel,
+    tempMaxC: d.tempMaxC,
+    tempMinC: d.tempMinC,
+    rainProbPct: d.rainProbPct,
+  }));
+}
+
+export function filterFaqItems(
+  items: FaqEntry[],
+  category: FaqCategory | 'all',
+  query: string,
+  resolveText: (text: LocalizedText) => string
+): FaqEntry[] {
+  const q = query.trim().toLowerCase();
+  return items.filter((item) => {
+    if (category !== 'all' && item.category !== category) {
+      return false;
+    }
+    if (!q) return true;
+    const hay = `${resolveText(item.question)} ${resolveText(item.answer)} ${item.question.en} ${item.answer.en} ${item.question.hi} ${item.answer.hi}`.toLowerCase();
+    return hay.includes(q);
+  });
 }
 
 

@@ -5,7 +5,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import type { User } from 'firebase/auth';
-import { CheckCircle2, Clock, Mail, MapPin, Pencil, Phone, X } from 'lucide-react';
+import { CheckCircle2, Clock, HelpCircle, Mail, MapPin, Phone, X } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { HomeView } from './components/HomeView';
 import { WeatherView } from './components/WeatherView';
@@ -15,7 +15,7 @@ import { MandiView } from './components/MandiView';
 import { CropDoctorView } from './components/CropDoctorView';
 import { WorkspaceHubView } from './components/WorkspaceHubView';
 import { AgriChatbot } from './components/AgriChatbot';
-import { ContactDetailsModal } from './components/ContactDetailsModal';
+import { HelpFaqSection } from './components/HelpFaqSection';
 import {
   ConfirmActionModal,
   type PendingConfirmation,
@@ -51,12 +51,10 @@ import {
   DEFAULT_CONTACT_DETAILS,
   enrichMandiPrice,
   formatCoordinates,
-  normalizeContactDetails,
 } from './utils/agriLogic';
 import type {
   AgroRegion,
   CartItem,
-  ContactDetails,
   CropCatalogItem,
   CropDiseaseEntry,
   CropPlanRecord,
@@ -130,16 +128,8 @@ export default function App() {
     null
   );
 
-  // Contact Details & Live GPS state
-  const [contactDetails, setContactDetails] = useState<ContactDetails>(() => {
-    try {
-      const saved = localStorage.getItem('agriveda_contact_details');
-      return saved ? normalizeContactDetails(JSON.parse(saved)) : DEFAULT_CONTACT_DETAILS;
-    } catch {
-      return DEFAULT_CONTACT_DETAILS;
-    }
-  });
-  const [contactModalOpen, setContactModalOpen] = useState(false);
+  // Official Contact Details & Live GPS state
+  const contactDetails = DEFAULT_CONTACT_DETAILS;
   const [liveGpsCoords, setLiveGpsCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   const handleAskAiProblem = (topicLabel: string, promptText: string) => {
@@ -152,14 +142,8 @@ export default function App() {
     setToastMessage(msg);
   };
 
-  const handleSaveContactDetails = (next: ContactDetails) => {
-    setContactDetails(next);
-    try {
-      localStorage.setItem('agriveda_contact_details', JSON.stringify(next));
-    } catch {
-      // Ignore storage errors in restricted contexts
-    }
-    showToast(`${copy.footer.contactHeading}: ${next.email}`);
+  const scrollToFooterBlock = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   useEffect(() => {
@@ -499,89 +483,93 @@ export default function App() {
         onConsumeQueuedPrompt={() => setQueuedChatPrompt(null)}
       />
 
-      <ContactDetailsModal
-        language={language}
-        isOpen={contactModalOpen}
-        contactDetails={contactDetails}
-        onClose={() => setContactModalOpen(false)}
-        onSave={handleSaveContactDetails}
-      />
-
       <footer className="border-t border-[#DFDDD4] bg-[#FFFFFF] mt-12">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <div className="lg:col-span-5 space-y-1.5">
-            <p className="text-base font-bold text-[#1B5E3A]">{copy.brandName}</p>
-            <p className="text-sm text-[#4D574B]">{copy.footer.tagline}</p>
-            <p className="text-xs text-[#4D574B]">{copy.footer.dataNote}</p>
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-8 space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-5 space-y-1.5">
+              <p className="text-base font-bold text-[#1B5E3A]">{copy.brandName}</p>
+              <p className="text-sm text-[#4D574B]">{copy.footer.tagline}</p>
+              <p className="text-xs text-[#4D574B]">{copy.footer.dataNote}</p>
+            </div>
+
+            <section
+              id="contact-details"
+              data-testid="footer-contact-details"
+              aria-label={copy.footer.contactHeading}
+              className="lg:col-span-7 bg-[#F8F7F3] border border-[#DFDDD4] rounded-2xl p-5 space-y-4"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#DFDDD4]">
+                <div>
+                  <h2 className="text-sm font-bold text-[#1D241C]">
+                    {copy.footer.contactHeading}
+                  </h2>
+                  <p className="text-xs text-[#4D574B] mt-0.5">{contactDetails.contactName}</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    data-testid="contact-help-faq-link"
+                    onClick={() => scrollToFooterBlock('help-faq')}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] text-xs font-semibold text-[#1D241C] bg-[#FFFFFF] hover:bg-[#F1EFE8] border border-[#DFDDD4] rounded-lg cursor-pointer"
+                  >
+                    <HelpCircle className="w-3.5 h-3.5 text-[#1B5E3A] shrink-0" aria-hidden="true" />
+                    <span>{copy.footer.helpFaqLinkBtn}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div className="flex items-start gap-2.5">
+                  <Mail className="w-4 h-4 text-[#1B5E3A] mt-0.5 shrink-0" aria-hidden="true" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-[#4D574B]">{copy.footer.emailLabel}</p>
+                    <a
+                      href={`mailto:${contactDetails.email}`}
+                      className="font-medium text-[#1D241C] hover:text-[#1B5E3A] hover:underline break-all"
+                    >
+                      {contactDetails.email}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <Phone className="w-4 h-4 text-[#1B5E3A] mt-0.5 shrink-0" aria-hidden="true" />
+                  <div>
+                    <p className="text-xs text-[#4D574B]">{copy.footer.phoneLabel}</p>
+                    <a
+                      href={`tel:${contactDetails.phone.replace(/\s+/g, '')}`}
+                      className="font-mono font-semibold text-[#1D241C] hover:text-[#1B5E3A] hover:underline tabular-nums"
+                    >
+                      {contactDetails.phone}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <MapPin className="w-4 h-4 text-[#6B4423] mt-0.5 shrink-0" aria-hidden="true" />
+                  <div>
+                    <p className="text-xs text-[#4D574B]">{copy.footer.addressLabel}</p>
+                    <p className="text-sm text-[#1D241C]">{contactDetails.address}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <Clock className="w-4 h-4 text-[#6B4423] mt-0.5 shrink-0" aria-hidden="true" />
+                  <div>
+                    <p className="text-xs text-[#4D574B]">{copy.footer.hoursLabel}</p>
+                    <p className="text-sm text-[#1D241C]">{contactDetails.supportHours}</p>
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
 
-          <section
-            data-testid="footer-contact-details"
-            aria-label={copy.footer.contactHeading}
-            className="lg:col-span-7 bg-[#F8F7F3] border border-[#DFDDD4] rounded-2xl p-5 space-y-4"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#DFDDD4]">
-              <div>
-                <h2 className="text-sm font-bold text-[#1D241C]">
-                  {copy.footer.contactHeading}
-                </h2>
-                <p className="text-xs text-[#4D574B] mt-0.5">{contactDetails.contactName}</p>
-              </div>
-              <button
-                type="button"
-                data-testid="edit-contact-details-btn"
-                onClick={() => setContactModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] text-xs font-semibold text-[#1B5E3A] bg-[#FFFFFF] hover:bg-[#F1EFE8] border border-[#DFDDD4] rounded-lg cursor-pointer"
-              >
-                <Pencil className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                <span>{copy.footer.editContactBtn}</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <div className="flex items-start gap-2.5">
-                <Mail className="w-4 h-4 text-[#1B5E3A] mt-0.5 shrink-0" aria-hidden="true" />
-                <div className="min-w-0">
-                  <p className="text-xs text-[#4D574B]">{copy.footer.emailLabel}</p>
-                  <a
-                    href={`mailto:${contactDetails.email}`}
-                    className="font-medium text-[#1D241C] hover:text-[#1B5E3A] hover:underline break-all"
-                  >
-                    {contactDetails.email}
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5">
-                <Phone className="w-4 h-4 text-[#1B5E3A] mt-0.5 shrink-0" aria-hidden="true" />
-                <div>
-                  <p className="text-xs text-[#4D574B]">{copy.footer.phoneLabel}</p>
-                  <a
-                    href={`tel:${contactDetails.phone.replace(/\s+/g, '')}`}
-                    className="font-mono font-semibold text-[#1D241C] hover:text-[#1B5E3A] hover:underline tabular-nums"
-                  >
-                    {contactDetails.phone}
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#6B4423] mt-0.5 shrink-0" aria-hidden="true" />
-                <div>
-                  <p className="text-xs text-[#4D574B]">{copy.footer.addressLabel}</p>
-                  <p className="text-sm text-[#1D241C]">{contactDetails.address}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5">
-                <Clock className="w-4 h-4 text-[#6B4423] mt-0.5 shrink-0" aria-hidden="true" />
-                <div>
-                  <p className="text-xs text-[#4D574B]">{copy.footer.hoursLabel}</p>
-                  <p className="text-sm text-[#1D241C]">{contactDetails.supportHours}</p>
-                </div>
-              </div>
-            </div>
-          </section>
+          <HelpFaqSection
+            language={language}
+            contactDetails={contactDetails}
+            onJumpToContact={() => scrollToFooterBlock('contact-details')}
+            onAskAi={() => setChatOpen(true)}
+          />
         </div>
       </footer>
     </div>

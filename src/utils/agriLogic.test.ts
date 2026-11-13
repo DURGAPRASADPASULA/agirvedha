@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  buildSevenDayChartData,
   calculateCartTotal,
   DEFAULT_CONTACT_DETAILS,
   enrichMandiPrice,
   extractGroundingSources,
+  filterFaqItems,
   filterMandiPrices,
   filterMarketplaceListings,
   findNearestWeatherHub,
@@ -191,6 +193,45 @@ test('findNearestWeatherHub and haversineDistanceKm identify closest farming dis
   assert.equal(nearestAp.hubId, 'tenali_guntur');
 
   assert.equal(formatCoordinates(16.3067, 80.4365), '16.3067° N, 80.4365° E');
+});
+
+test('buildSevenDayChartData maps 7-day forecast points for Recharts line series', () => {
+  const hub = LOCATION_WEATHER_DATA[0];
+  const points = buildSevenDayChartData(hub.sevenDay, (t) => t.en);
+  assert.equal(points.length, 7);
+  assert.equal(points[0].dayLabel, hub.sevenDay[0].day.en);
+  assert.equal(points[0].tempMaxC, hub.sevenDay[0].tempMaxC);
+  assert.equal(points[0].tempMinC, hub.sevenDay[0].tempMinC);
+  assert.equal(points[0].rainProbPct, hub.sevenDay[0].rainProbPct);
+});
+
+test('filterFaqItems filters by category and bilingual search terms accurately', () => {
+  const sampleFaqs = [
+    {
+      id: 'faq_gps',
+      category: 'weather' as const,
+      question: { en: 'How do I use GPS tracking?', hi: 'GPS ट्रैकिंग कैसे उपयोग करें?' },
+      answer: { en: 'Tap Detect GPS Location in Weather.', hi: 'मौसम में GPS बटन दबाएं।' },
+    },
+    {
+      id: 'faq_mandi',
+      category: 'mandi' as const,
+      question: { en: 'How are Mandi prices shown?', hi: 'मंडी भाव कैसे दिखते हैं?' },
+      answer: { en: 'In ₹ per quintal and ₹ per kg.', hi: '₹ प्रति क्विंटल और ₹ प्रति किलो में।' },
+    },
+  ];
+
+  const onlyWeather = filterFaqItems(sampleFaqs, 'weather', '', (t) => t.en);
+  assert.equal(onlyWeather.length, 1);
+  assert.equal(onlyWeather[0].id, 'faq_gps');
+
+  const queryQuintal = filterFaqItems(sampleFaqs, 'all', 'quintal', (t) => t.en);
+  assert.equal(queryQuintal.length, 1);
+  assert.equal(queryQuintal[0].id, 'faq_mandi');
+
+  const queryHindi = filterFaqItems(sampleFaqs, 'all', 'मंडी', (t) => t.hi);
+  assert.equal(queryHindi.length, 1);
+  assert.equal(queryHindi[0].id, 'faq_mandi');
 });
 
 

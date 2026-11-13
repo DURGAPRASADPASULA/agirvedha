@@ -277,3 +277,26 @@ export interface ContactDetails {
   supportHours: string;
 }
 
+export type FaqCategory =
+  | 'weather'
+  | 'planner'
+  | 'marketplace'
+  | 'mandi'
+  | 'doctor'
+  | 'support';
+
+export interface FaqEntry {
+  id: string;
+  category: FaqCategory;
+  question: LocalizedText;
+  answer: LocalizedText;
+}
+
+export interface SevenDayChartPoint {
+  dayLabel: string;
+  dateLabel: string;
+  tempMaxC: number;
+  tempMinC: number;
+  rainProbPct: number;
+}
+

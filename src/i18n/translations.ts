@@ -93,6 +93,10 @@ export interface UiCopyShape {
       permissionHint: string;
       unsupportedError: string;
     };
+    chartTitle: string;
+    chartSubtitle: string;
+    maxTempLegend: string;
+    minTempLegend: string;
   };
   planner: {
     heading: string;
@@ -367,6 +371,27 @@ export interface UiCopyShape {
     contactNameLabel: string;
     saveContactBtn: string;
     resetContactBtn: string;
+    helpFaqLinkBtn: string;
+  };
+  faq: {
+    heading: string;
+    subheading: string;
+    searchPlaceholder: string;
+    allCategories: string;
+    categories: {
+      weather: string;
+      planner: string;
+      marketplace: string;
+      mandi: string;
+      doctor: string;
+      support: string;
+    };
+    noResultsTitle: string;
+    noResultsDesc: string;
+    stillNeedHelp: string;
+    goToContactBtn: string;
+    editContactBtn: string;
+    askAiBtn: string;
   };
 }
 
@@ -467,6 +492,10 @@ const EN_COPY: UiCopyShape = {
       permissionHint: 'Allow browser location permission when prompted to read real-time GPS.',
       unsupportedError: 'Device geolocation is unavailable or permission was denied.',
     },
+    chartTitle: '7-Day Temperature & Rainfall Trend',
+    chartSubtitle: 'Daily high/low temperature (°C) and rainfall probability (%) for the next 7 days.',
+    maxTempLegend: 'Max Temp (°C)',
+    minTempLegend: 'Min Temp (°C)',
   },
   planner: {
     heading: 'Smart Crop Recommendation Engine',
@@ -761,6 +790,28 @@ const EN_COPY: UiCopyShape = {
     contactNameLabel: 'Desk / Contact Name',
     saveContactBtn: 'Save Contact Details',
     resetContactBtn: 'Reset Defaults',
+    helpFaqLinkBtn: 'Help & FAQ',
+  },
+  faq: {
+    heading: 'Help & Farmer FAQ',
+    subheading:
+      'Answers to common questions on weather & GPS tracking, crop planning, direct sales, Mandi prices, and AI Crop Doctor.',
+    searchPlaceholder: 'Search help topics (e.g. GPS, MSP, sell crop, AI scan, language)...',
+    allCategories: 'All Topics',
+    categories: {
+      weather: 'Weather & GPS',
+      planner: 'Crop Planner',
+      marketplace: 'Marketplace',
+      mandi: 'Mandi & MSP',
+      doctor: 'AI Crop Doctor',
+      support: 'Support & Sync',
+    },
+    noResultsTitle: 'No matching help articles found',
+    noResultsDesc: 'Try clearing the search box or reach out to the AgriVeda Farmer Helpdesk directly.',
+    stillNeedHelp: 'Still need assistance? Reach the AgriVeda Farmer Helpdesk directly:',
+    goToContactBtn: 'View Contact Details',
+    editContactBtn: 'Update Contact Details',
+    askAiBtn: 'Ask AI Sahayak',
   },
 };
 
@@ -861,6 +912,10 @@ const HI_COPY: UiCopyShape = {
       permissionHint: 'रीयल-टाइम GPS पढ़ने के लिए कृपया ब्राउज़र में लोकेशन अनुमति दें।',
       unsupportedError: 'डिवाइस लोकेशन उपलब्ध नहीं है या अनुमति अस्वीकार की गई।',
     },
+    chartTitle: '7-दिन तापमान व बारिश रुझान',
+    chartSubtitle: 'अगले 7 दिनों का अधिकतम/न्यूनतम तापमान (°C) और बारिश की संभावना (%) ग्राफ़।',
+    maxTempLegend: 'अधिकतम तापमान (°C)',
+    minTempLegend: 'न्यूनतम तापमान (°C)',
   },
   planner: {
     heading: 'स्मार्ट फसल अनुशंसा उपकरण',
@@ -1154,6 +1209,28 @@ const HI_COPY: UiCopyShape = {
     contactNameLabel: 'केंद्र / संपर्क नाम',
     saveContactBtn: 'संपर्क विवरण सहेजें',
     resetContactBtn: 'डिफ़ॉल्ट पर रीसेट करें',
+    helpFaqLinkBtn: 'सहायता और प्रश्न (FAQ)',
+  },
+  faq: {
+    heading: 'किसान सहायता और सामान्य प्रश्न (Help & FAQ)',
+    subheading:
+      'मौसम व GPS ट्रैकिंग, फसल योजना, सीधा बाज़ार, मंडी भाव और AI फसल डॉक्टर से जुड़े आम सवालों के जवाब।',
+    searchPlaceholder: 'सवाल खोजें (जैसे GPS, MSP, फसल बेचें, AI स्कैन, भाषा)...',
+    allCategories: 'सभी विषय',
+    categories: {
+      weather: 'मौसम व GPS',
+      planner: 'फसल योजना',
+      marketplace: 'सीधा बाज़ार',
+      mandi: 'मंडी व MSP',
+      doctor: 'AI फसल डॉक्टर',
+      support: 'सहायता व सिंक',
+    },
+    noResultsTitle: 'खोज से मिलता कोई प्रश्न नहीं मिला',
+    noResultsDesc: 'कृपया खोज साफ़ करें या नीचे AgriVeda किसान सहायता केंद्र से सीधे संपर्क करें।',
+    stillNeedHelp: 'और सहायता चाहिए? AgriVeda किसान सहायता केंद्र से सीधे जुड़ें:',
+    goToContactBtn: 'संपर्क विवरण देखें',
+    editContactBtn: 'संपर्क विवरण बदलें',
+    askAiBtn: 'AI सहायक से पूछें',
   },
 };
 
