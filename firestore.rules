@@ -1,0 +1,238 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net: deny everything by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidMarketplaceListing(data) {
+      return data.keys().hasAll([
+        'ownerId',
+        'farmerName',
+        'village',
+        'cropName',
+        'category',
+        'quantityValue',
+        'quantityUnit',
+        'pricePerKg',
+        'harvestDate',
+        'freshnessLabel',
+        'imageDataUrl',
+        'status',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.keys().hasOnly([
+        'ownerId',
+        'farmerName',
+        'village',
+        'cropName',
+        'category',
+        'quantityValue',
+        'quantityUnit',
+        'pricePerKg',
+        'harvestDate',
+        'freshnessLabel',
+        'imageDataUrl',
+        'status',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128
+      && data.farmerName is string && data.farmerName.size() >= 2 && data.farmerName.size() <= 80
+      && data.village is string && data.village.size() >= 2 && data.village.size() <= 100
+      && data.cropName is string && data.cropName.size() >= 2 && data.cropName.size() <= 80
+      && data.category in ['grains', 'vegetables', 'fruits', 'pulses']
+      && data.quantityValue is number && data.quantityValue > 0 && data.quantityValue <= 100000
+      && data.quantityUnit in ['kg', 'quintal']
+      && data.pricePerKg is number && data.pricePerKg > 0 && data.pricePerKg <= 100000
+      && data.harvestDate is string && data.harvestDate.size() == 10 && data.harvestDate.matches('^\\d{4}-\\d{2}-\\d{2}$')
+      && data.freshnessLabel is string && data.freshnessLabel.size() >= 2 && data.freshnessLabel.size() <= 60
+      && data.imageDataUrl is string && data.imageDataUrl.size() <= 450000
+      && data.status in ['active', 'sold_out']
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
+    function isValidCropPlan(data) {
+      return data.keys().hasAll([
+        'ownerId',
+        'regionId',
+        'soilType',
+        'season',
+        'expectedRainfall',
+        'temperatureBand',
+        'topCropName',
+        'notes',
+        'createdAt'
+      ])
+      && data.keys().hasOnly([
+        'ownerId',
+        'regionId',
+        'soilType',
+        'season',
+        'expectedRainfall',
+        'temperatureBand',
+        'topCropName',
+        'notes',
+        'createdAt'
+      ])
+      && data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128
+      && data.regionId is string && data.regionId.size() >= 1 && data.regionId.size() <= 60
+      && data.soilType in ['alluvial', 'black', 'red', 'sandy']
+      && data.season in ['Kharif', 'Rabi', 'Zaid']
+      && data.expectedRainfall in ['low', 'moderate', 'high']
+      && data.temperatureBand in ['cool', 'mild', 'warm']
+      && data.topCropName is string && data.topCropName.size() >= 1 && data.topCropName.size() <= 100
+      && data.notes is string && data.notes.size() <= 400
+      && data.createdAt is timestamp;
+    }
+
+    function isValidMarketplaceOrder(data) {
+      return data.keys().hasAll([
+        'buyerId',
+        'buyerName',
+        'deliveryAddress',
+        'totalInr',
+        'itemSummary',
+        'status',
+        'createdAt'
+      ])
+      && data.keys().hasOnly([
+        'buyerId',
+        'buyerName',
+        'deliveryAddress',
+        'totalInr',
+        'itemSummary',
+        'status',
+        'createdAt'
+      ])
+      && data.buyerId is string && data.buyerId.size() >= 1 && data.buyerId.size() <= 128
+      && data.buyerName is string && data.buyerName.size() >= 1 && data.buyerName.size() <= 80
+      && data.deliveryAddress is string && data.deliveryAddress.size() >= 5 && data.deliveryAddress.size() <= 200
+      && data.totalInr is number && data.totalInr > 0 && data.totalInr <= 10000000
+      && data.itemSummary is string && data.itemSummary.size() >= 2 && data.itemSummary.size() <= 500
+      && data.status in ['confirmed', 'dispatched']
+      && data.createdAt is timestamp;
+    }
+
+    function isValidCropScanLog(data) {
+      return data.keys().hasAll([
+        'ownerId',
+        'cropName',
+        'diagnosisName',
+        'confidencePct',
+        'treatmentSummary',
+        'createdAt'
+      ])
+      && data.keys().hasOnly([
+        'ownerId',
+        'cropName',
+        'diagnosisName',
+        'confidencePct',
+        'treatmentSummary',
+        'createdAt'
+      ])
+      && data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128
+      && data.cropName is string && data.cropName.size() >= 1 && data.cropName.size() <= 80
+      && data.diagnosisName is string && data.diagnosisName.size() >= 1 && data.diagnosisName.size() <= 120
+      && data.confidencePct is number && data.confidencePct >= 0 && data.confidencePct <= 100
+      && data.treatmentSummary is string && data.treatmentSummary.size() >= 2 && data.treatmentSummary.size() <= 400
+      && data.createdAt is timestamp;
+    }
+
+    match /marketplaceListings/{listingId} {
+      allow get: if isValidId(listingId) && (
+        existing().status == 'active' ||
+        (isSignedIn() && existing().ownerId == request.auth.uid)
+      );
+
+      allow list: if resource.data.status == 'active' ||
+        (isSignedIn() && resource.data.ownerId == request.auth.uid);
+
+      allow create: if isVerifiedUser()
+        && isValidId(listingId)
+        && isValidMarketplaceListing(incoming())
+        && incoming().ownerId == request.auth.uid
+        && incoming().status == 'active'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isVerifiedUser()
+        && isValidId(listingId)
+        && isValidMarketplaceListing(incoming())
+        && existing().ownerId == request.auth.uid
+        && existing().status != 'sold_out'
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['quantityValue', 'pricePerKg', 'status', 'updatedAt']);
+
+      allow delete: if isVerifiedUser()
+        && isValidId(listingId)
+        && existing().ownerId == request.auth.uid;
+    }
+
+    match /users/{userId}/cropPlans/{planId} {
+      allow get: if isVerifiedUser() && isValidId(userId) && isValidId(planId) && request.auth.uid == userId && existing().ownerId == request.auth.uid;
+      allow list: if isVerifiedUser() && isValidId(userId) && request.auth.uid == userId && resource.data.ownerId == request.auth.uid;
+      allow create: if isVerifiedUser()
+        && isValidId(userId)
+        && isValidId(planId)
+        && request.auth.uid == userId
+        && isValidCropPlan(incoming())
+        && incoming().ownerId == request.auth.uid
+        && incoming().createdAt == request.time;
+      allow delete: if isVerifiedUser() && isValidId(userId) && isValidId(planId) && request.auth.uid == userId && existing().ownerId == request.auth.uid;
+    }
+
+    match /users/{userId}/orders/{orderId} {
+      allow get: if isVerifiedUser() && isValidId(userId) && isValidId(orderId) && request.auth.uid == userId && existing().buyerId == request.auth.uid;
+      allow list: if isVerifiedUser() && isValidId(userId) && request.auth.uid == userId && resource.data.buyerId == request.auth.uid;
+      allow create: if isVerifiedUser()
+        && isValidId(userId)
+        && isValidId(orderId)
+        && request.auth.uid == userId
+        && isValidMarketplaceOrder(incoming())
+        && incoming().buyerId == request.auth.uid
+        && incoming().status == 'confirmed'
+        && incoming().createdAt == request.time;
+    }
+
+    match /users/{userId}/scanLogs/{scanId} {
+      allow get: if isVerifiedUser() && isValidId(userId) && isValidId(scanId) && request.auth.uid == userId && existing().ownerId == request.auth.uid;
+      allow list: if isVerifiedUser() && isValidId(userId) && request.auth.uid == userId && resource.data.ownerId == request.auth.uid;
+      allow create: if isVerifiedUser()
+        && isValidId(userId)
+        && isValidId(scanId)
+        && request.auth.uid == userId
+        && isValidCropScanLog(incoming())
+        && incoming().ownerId == request.auth.uid
+        && incoming().createdAt == request.time;
+      allow delete: if isVerifiedUser() && isValidId(userId) && isValidId(scanId) && request.auth.uid == userId && existing().ownerId == request.auth.uid;
+    }
+  }
+}

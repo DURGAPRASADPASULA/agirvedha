@@ -1,0 +1,266 @@
+{
+  "entities": {
+    "MarketplaceListing": {
+      "title": "MarketplaceListing",
+      "description": "Farmer-to-customer direct produce listing created by a verified farmer.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the farmer who created the listing.",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "farmerName": {
+          "type": "string",
+          "description": "Display name of the farmer.",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "village": {
+          "type": "string",
+          "description": "Village and district of the farm.",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "cropName": {
+          "type": "string",
+          "description": "Name of the produce item.",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "category": {
+          "type": "string",
+          "enum": ["grains", "vegetables", "fruits", "pulses"],
+          "description": "Produce category."
+        },
+        "quantityValue": {
+          "type": "number",
+          "description": "Available quantity numeric amount."
+        },
+        "quantityUnit": {
+          "type": "string",
+          "enum": ["kg", "quintal"],
+          "description": "Quantity unit."
+        },
+        "pricePerKg": {
+          "type": "number",
+          "description": "Direct price in INR per kg."
+        },
+        "harvestDate": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "minLength": 10,
+          "maxLength": 10,
+          "description": "Harvest date in YYYY-MM-DD format."
+        },
+        "freshnessLabel": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 60,
+          "description": "Freshness descriptor."
+        },
+        "imageDataUrl": {
+          "type": "string",
+          "maxLength": 450000,
+          "description": "Compressed produce photo data URL or asset path."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "sold_out"],
+          "description": "Listing availability status."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "ownerId",
+        "farmerName",
+        "village",
+        "cropName",
+        "category",
+        "quantityValue",
+        "quantityUnit",
+        "pricePerKg",
+        "harvestDate",
+        "freshnessLabel",
+        "imageDataUrl",
+        "status",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CropPlanRecord": {
+      "title": "CropPlanRecord",
+      "description": "Saved 4-month crop planning configuration and top crop match for a signed-in farmer.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "regionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "soilType": {
+          "type": "string",
+          "enum": ["alluvial", "black", "red", "sandy"]
+        },
+        "season": {
+          "type": "string",
+          "enum": ["Kharif", "Rabi", "Zaid"]
+        },
+        "expectedRainfall": {
+          "type": "string",
+          "enum": ["low", "moderate", "high"]
+        },
+        "temperatureBand": {
+          "type": "string",
+          "enum": ["cool", "mild", "warm"]
+        },
+        "topCropName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "ownerId",
+        "regionId",
+        "soilType",
+        "season",
+        "expectedRainfall",
+        "temperatureBand",
+        "topCropName",
+        "notes",
+        "createdAt"
+      ]
+    },
+    "MarketplaceOrder": {
+      "title": "MarketplaceOrder",
+      "description": "Direct farm produce order placed by a signed-in buyer.",
+      "type": "object",
+      "properties": {
+        "buyerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "buyerName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "deliveryAddress": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 200
+        },
+        "totalInr": {
+          "type": "number"
+        },
+        "itemSummary": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 500
+        },
+        "status": {
+          "type": "string",
+          "enum": ["confirmed", "dispatched"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "buyerId",
+        "buyerName",
+        "deliveryAddress",
+        "totalInr",
+        "itemSummary",
+        "status",
+        "createdAt"
+      ]
+    },
+    "CropScanLog": {
+      "title": "CropScanLog",
+      "description": "Saved AI Crop Doctor scan diagnosis for a signed-in farmer.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "cropName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "diagnosisName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "confidencePct": {
+          "type": "number"
+        },
+        "treatmentSummary": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 400
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "ownerId",
+        "cropName",
+        "diagnosisName",
+        "confidencePct",
+        "treatmentSummary",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/marketplaceListings/{listingId}": {
+      "schema": { "$ref": "#/entities/MarketplaceListing" },
+      "description": "Public farmer-to-customer produce listings; writes restricted to verified owner."
+    },
+    "/users/{userId}/cropPlans/{planId}": {
+      "schema": { "$ref": "#/entities/CropPlanRecord" },
+      "description": "Private saved 4-month crop recommendations for a user."
+    },
+    "/users/{userId}/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/MarketplaceOrder" },
+      "description": "Private direct-farm order history for a buyer."
+    },
+    "/users/{userId}/scanLogs/{scanId}": {
+      "schema": { "$ref": "#/entities/CropScanLog" },
+      "description": "Private AI Crop Doctor leaf scan logs for a farmer."
+    }
+  }
+}

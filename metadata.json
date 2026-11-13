@@ -1,0 +1,6 @@
+{
+  "name": "AgriVeda",
+  "description": "AgriVeda — Indian Agriculture and Rural Development portal with daily weather updates, 4-month seasonal outlooks, smart crop planning, direct farmer-to-customer marketplace, live Mandi wholesale rates, AI Camera Crop Doctor, and Google Workspace sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
